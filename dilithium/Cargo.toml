@@ -17,6 +17,7 @@ rust-version = "1.60"
 
 [dependencies]
 generic-array = { version = "1.0.0", default-features = false }
+sha3 = { version = "0.10", default-features = false }
 
 [dependencies.signature]
 version = "2"

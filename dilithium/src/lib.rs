@@ -26,6 +26,7 @@
 use generic_array::GenericArray;
 
 mod consts;
+mod expand_s;
 mod poly32;
 mod signing_key;
 mod variant;
@@ -33,4 +34,3 @@ mod variant;
 type ByteArray<Size> = GenericArray<u8, Size>;
 
 pub use crate::signing_key::SigningKey;
-

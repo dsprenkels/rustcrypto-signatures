@@ -11,7 +11,7 @@ where
 {
     rho: ByteArray<variant::SEEDBYTES>,
     key: ByteArray<variant::SEEDBYTES>,
-    tr: ByteArray<variant::SEEDBYTES>,
+    tr: ByteArray<variant::CRHBYTES>,
     // TODO [dsprenkels]: Allow for lazy initialization of A
     mat: GenericArray<GenericArray<poly32::Poly32, V::L>, V::K>,
     s1: GenericArray<poly32::Poly32, V::L>,

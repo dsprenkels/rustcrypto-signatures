@@ -2,6 +2,7 @@ use generic_array::GenericArray;
 
 use crate::variant;
 
+#[derive(Clone, Copy, Default)]
 pub(crate) struct Poly32 {
-    coeffs: GenericArray<i32, variant::N>,
+    pub(crate) coeffs: GenericArray<i32, variant::N>,
 }
