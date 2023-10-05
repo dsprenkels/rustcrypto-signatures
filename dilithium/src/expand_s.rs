@@ -1,7 +1,6 @@
-use crate::poly32;
-use crate::variant;
-use crate::ByteArray;
 use sha3::digest::{ExtendableOutput, Update, XofReader};
+
+use crate::{poly32, variant, ByteArray};
 
 struct Sampler4Bit {
     xofread: sha3::Shake256Reader,
@@ -12,7 +11,7 @@ struct Sampler4Bit {
 impl Iterator for Sampler4Bit {
     type Item = i32;
 
-    fn next(&mut self) -> Option<Self::Item> {
+        fn next(&mut self) -> Option<Self::Item> {
         // TODO: Buffer in larger chunks than a single byte.
         if self.offset == 0 {
             self.xofread.read(&mut self.sample);
@@ -26,11 +25,11 @@ impl Iterator for Sampler4Bit {
 }
 
 impl Sampler4Bit {
-    fn new(seed: &ByteArray<variant::CRHBYTES>, nonce: u16) -> Self {
+        fn new(seed: &ByteArray<variant::CRHBYTES>, nonce: u16) -> Self {
         let mut xof = sha3::Shake256::default();
         xof.update(seed);
         xof.update(&nonce.to_le_bytes());
-        let mut xofread = xof.finalize_xof();
+        let xofread = xof.finalize_xof();
         Self {
             xofread,
             sample: [0; 1],
@@ -82,4 +81,17 @@ pub(crate) fn poly_uniform_eta_4(
         };
     }
     poly
+}
+
+pub(crate) fn expand_s<V: variant::Variant, N: generic_array::ArrayLength>(
+    vi: &variant::VariantImpl<V>,
+    seed: &ByteArray<variant::CRHBYTES>,
+    mut nonce: u16,
+) -> (generic_array::GenericArray<poly32::Poly32, N>, u16) {
+    let mut vec = generic_array::GenericArray::default();
+    for poly in vec.iter_mut() {
+        *poly = (vi.poly_sample_eta)(seed, nonce);
+        nonce += 1;
+    }
+    (vec, nonce)
 }
