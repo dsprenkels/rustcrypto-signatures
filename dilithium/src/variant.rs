@@ -40,7 +40,7 @@ impl Variant for Dilithium2 {
 /// We can also not put these functions in the `Variant` trait, because the
 /// `Variant` trait is exposed to the public.  Rust will complain about any
 /// private types (like `Poly32`) that are used in the trait.
-/// 
+///
 /// As a rule of thumb, all values that are sizes (i.e., `ArrayLengths` are)
 /// to put in the `Variant` trait, and all other values (constants or functions)
 /// are to be put in this struct.

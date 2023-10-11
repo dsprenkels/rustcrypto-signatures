@@ -28,3 +28,45 @@ impl SigningKey<variant::Dilithium2> {
         todo!()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use signature::rand_core::{CryptoRng, RngCore};
+
+    struct DummyRng {
+        pub(crate) ctr: u64,
+    }
+
+    impl RngCore for DummyRng {
+        fn next_u32(&mut self) -> u32 {
+            let mut x = [0; 4];
+            self.fill_bytes(&mut x);
+            u32::from_le_bytes(x)
+        }
+
+        fn next_u64(&mut self) -> u64 {
+            let mut x = [0; 8];
+            self.fill_bytes(&mut x);
+            u64::from_le_bytes(x)
+        }
+
+        fn fill_bytes(&mut self, dest: &mut [u8]) {
+            for b in dest.iter_mut() {
+                *b = self.ctr as u8;
+                self.ctr += 1;
+            }
+        }
+
+        fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), signature::rand_core::Error> {
+            Ok(self.fill_bytes(dest))
+        }
+    }
+
+    impl CryptoRng for DummyRng {}
+
+    #[test]
+    fn test_signing_key_random() {
+        let mut rng = DummyRng { ctr: 0 };
+        let sk = super::SigningKey::<super::variant::Dilithium2>::random(&mut rng);
+    }
+}

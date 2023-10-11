@@ -11,7 +11,7 @@ struct Sampler4Bit {
 impl Iterator for Sampler4Bit {
     type Item = i32;
 
-        fn next(&mut self) -> Option<Self::Item> {
+    fn next(&mut self) -> Option<Self::Item> {
         // TODO: Buffer in larger chunks than a single byte.
         if self.offset == 0 {
             self.xofread.read(&mut self.sample);
@@ -25,7 +25,7 @@ impl Iterator for Sampler4Bit {
 }
 
 impl Sampler4Bit {
-        fn new(seed: &ByteArray<variant::CRHBYTES>, nonce: u16) -> Self {
+    fn new(seed: &ByteArray<variant::CRHBYTES>, nonce: u16) -> Self {
         let mut xof = sha3::Shake256::default();
         xof.update(seed);
         xof.update(&nonce.to_le_bytes());

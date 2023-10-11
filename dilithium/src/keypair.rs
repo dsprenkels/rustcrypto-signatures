@@ -2,7 +2,7 @@ use generic_array::typenum::Unsigned;
 use sha3::digest::{ExtendableOutput, Update, XofReader};
 use signature::rand_core::CryptoRngCore;
 
-use crate::{expand_a, expand_s, poly32, poly32::PolyVec, variant, ByteArray, SigningKey};
+use crate::{expand_a, expand_s, poly32, poly32::PolyVec, reduce, variant, ByteArray, SigningKey};
 
 pub(crate) fn keypair_random<V: variant::Variant>(
     vi: &variant::VariantImpl<V>,
@@ -45,10 +45,10 @@ pub(crate) fn keypair_from_seed<V: variant::Variant>(
     // Matrix-vector multiplication
     let s1_ntt = s1.ntt();
     let as1_ntt_montgomery = poly32::matrix_mul_montgomery::<V>(&mat_ntt, &s1_ntt);
-    let as1_ntt = as1_ntt_montgomery.flat_map(&poly32::reduce32);
+    let as1_ntt = as1_ntt_montgomery.flat_map(&reduce::reduce32);
     let as1 = as1_ntt.invntt();
     // TODO: Check if we need to do a reduction here before caddq'ing.
-    let t = as1.add(&s2).flat_map(&poly32::caddq);
+    let t = as1.add(&s2).flat_map(&reduce::caddq);
     let (_, t0) = t.power2round();
 
     SigningKey {

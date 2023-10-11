@@ -30,6 +30,7 @@ mod consts;
 mod expand_a;
 mod expand_s;
 mod keypair;
+mod ntt;
 mod poly32;
 mod reduce;
 mod signing_key;
