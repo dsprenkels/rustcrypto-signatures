@@ -1,6 +1,4 @@
-use generic_array::{functional::FunctionalSequence, typenum::Unsigned, GenericArray};
-
-use crate::{ntt, reduce, variant};
+use crate::{ntt, reduce, types::*, variant};
 
 #[derive(Clone, Copy, Default)]
 pub(crate) struct Poly32 {
@@ -103,10 +101,10 @@ impl<N: generic_array::ArrayLength> PolyVec for GenericArray<Poly32, N> {
 }
 
 pub(crate) fn matrix_mul_montgomery<V: variant::Variant>(
-    mat: &crate::Matrix<V>,
-    s: &crate::Poly32VecL<V>,
-) -> crate::Poly32VecK<V> {
-    let mut t = crate::Poly32VecK::<V>::default();
+    mat: &Matrix<V>,
+    s: &Poly32VecL<V>,
+) -> Poly32VecK<V> {
+    let mut t = Poly32VecK::<V>::default();
     for row in 0..<V as variant::Variant>::K::USIZE {
         for col in 0..<V as variant::Variant>::L::USIZE {
             t[row] = t[row].add(&mat[row][col].pointwise_mul_montgomery(&s[col]));

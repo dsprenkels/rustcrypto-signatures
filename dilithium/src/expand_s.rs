@@ -1,6 +1,6 @@
 use sha3::digest::{ExtendableOutput, Update, XofReader};
 
-use crate::{poly32, variant, ByteArray};
+use crate::{poly32, types::*, variant};
 
 struct Sampler4Bit {
     xofread: sha3::Shake256Reader,
@@ -25,7 +25,7 @@ impl Iterator for Sampler4Bit {
 }
 
 impl Sampler4Bit {
-    fn new(seed: &ByteArray<variant::CRHBYTES>, nonce: u16) -> Self {
+    fn new(seed: &ByteArray<variant::CRHSize>, nonce: u16) -> Self {
         let mut xof = sha3::Shake256::default();
         xof.update(seed);
         xof.update(&nonce.to_le_bytes());
@@ -42,10 +42,7 @@ impl Sampler4Bit {
 ///
 /// This function corresponds to `poly_uniform_eta`, specialized for when
 /// eta is 2.
-pub(crate) fn poly_uniform_eta_2(
-    seed: &ByteArray<variant::CRHBYTES>,
-    nonce: u16,
-) -> poly32::Poly32 {
+pub(crate) fn poly_uniform_eta_2(seed: &ByteArray<variant::CRHSize>, nonce: u16) -> poly32::Poly32 {
     let mut poly = poly32::Poly32::default();
     let mut iter = poly.coeffs.iter_mut();
     let mut coeff = iter.next().expect("poly has no coefficients");
@@ -66,10 +63,7 @@ pub(crate) fn poly_uniform_eta_2(
 ///
 /// This function corresponds to `poly_uniform_eta`, specialized for when
 /// eta is 4.
-pub(crate) fn poly_uniform_eta_4(
-    seed: &ByteArray<variant::CRHBYTES>,
-    nonce: u16,
-) -> poly32::Poly32 {
+pub(crate) fn poly_uniform_eta_4(seed: &ByteArray<variant::CRHSize>, nonce: u16) -> poly32::Poly32 {
     let mut poly = poly32::Poly32::default();
     let mut iter = poly.coeffs.iter_mut();
     let mut coeff = iter.next().expect("poly has no coefficients");
@@ -84,13 +78,12 @@ pub(crate) fn poly_uniform_eta_4(
 }
 
 pub(crate) fn expand_s<V: variant::Variant, N: generic_array::ArrayLength>(
-    vi: &variant::VariantImpl<V>,
-    seed: &ByteArray<variant::CRHBYTES>,
+    seed: &ByteArray<variant::CRHSize>,
     mut nonce: u16,
-) -> (generic_array::GenericArray<poly32::Poly32, N>, u16) {
+) -> (GenericArray<poly32::Poly32, N>, u16) {
     let mut vec = generic_array::GenericArray::default();
     for poly in vec.iter_mut() {
-        *poly = (vi.poly_sample_eta)(seed, nonce);
+        *poly = (V::poly_sample_eta)(seed, nonce);
         nonce += 1;
     }
     (vec, nonce)

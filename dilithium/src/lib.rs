@@ -24,8 +24,7 @@
     unused_results
 )]
 
-use generic_array::GenericArray;
-
+mod api;
 mod consts;
 mod expand_a;
 mod expand_s;
@@ -33,14 +32,7 @@ mod keypair;
 mod ntt;
 mod poly32;
 mod reduce;
-mod signing_key;
+mod types;
 mod variant;
 
-type ByteArray<Size> = GenericArray<u8, Size>;
-type VecL<V, T> = GenericArray<T, <V as variant::Variant>::L>;
-type VecK<V, T> = GenericArray<T, <V as variant::Variant>::K>;
-type Poly32VecL<V> = VecL<V, poly32::Poly32>;
-type Poly32VecK<V> = VecK<V, poly32::Poly32>;
-type Matrix<V> = VecK<V, VecL<V, poly32::Poly32>>;
-
-pub use crate::signing_key::SigningKey;
+pub use api::{dilithium2, dilithium3, dilithium5};

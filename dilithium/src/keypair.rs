@@ -2,21 +2,15 @@ use generic_array::typenum::Unsigned;
 use sha3::digest::{ExtendableOutput, Update, XofReader};
 use signature::rand_core::CryptoRngCore;
 
-use crate::{expand_a, expand_s, poly32, poly32::PolyVec, reduce, variant, ByteArray, SigningKey};
+use crate::{expand_a, expand_s, poly32, poly32::PolyVec, reduce, types::*, variant};
 
-pub(crate) fn keypair_random<V: variant::Variant>(
-    vi: &variant::VariantImpl<V>,
-    rng: &mut impl CryptoRngCore,
-) -> SigningKey<V> {
-    let mut seed = ByteArray::<variant::SEEDBYTES>::default();
+pub(crate) fn keypair_random<V: variant::Variant>(rng: &mut impl CryptoRngCore) -> SigningKey<V> {
+    let mut seed = ByteArray::<variant::SeedSize>::default();
     rng.fill_bytes(&mut seed);
-    keypair_from_seed(vi, &seed)
+    keypair_from_seed(&seed)
 }
 
-pub(crate) fn keypair_from_seed<V: variant::Variant>(
-    vi: &variant::VariantImpl<V>,
-    seed: &[u8],
-) -> SigningKey<V> {
+pub(crate) fn keypair_from_seed<V: variant::Variant>(seed: &[u8]) -> SigningKey<V> {
     let expected_seed_len = V::SeedSize::USIZE;
     assert_eq!(seed.len(), expected_seed_len);
 
@@ -25,9 +19,9 @@ pub(crate) fn keypair_from_seed<V: variant::Variant>(
     xof.update(seed);
     let mut xofread = xof.finalize_xof();
 
-    let mut rho = ByteArray::from_array([0; variant::SEEDBYTES::USIZE]);
-    let mut rhoprime = ByteArray::from_array([0; variant::CRHBYTES::USIZE]);
-    let mut key = ByteArray::from_array([0; variant::SEEDBYTES::USIZE]);
+    let mut rho = ByteArray::from_array([0; variant::SeedSize::USIZE]);
+    let mut rhoprime = ByteArray::from_array([0; variant::CRHSize::USIZE]);
+    let mut key = ByteArray::from_array([0; variant::SeedSize::USIZE]);
 
     xofread.read(&mut rho);
     xofread.read(&mut rhoprime);
@@ -38,8 +32,8 @@ pub(crate) fn keypair_from_seed<V: variant::Variant>(
     let mat_ntt = expand_a::expand_a::<V>(&mut rho);
 
     // Expand s1 and s2
-    let (s1, nonce) = expand_s::expand_s::<V, V::L>(vi, &mut rhoprime, 0);
-    let (s2, nonce) = expand_s::expand_s::<V, V::K>(vi, &mut rhoprime, nonce);
+    let (s1, nonce) = expand_s::expand_s::<V, V::L>(&mut rhoprime, 0);
+    let (s2, nonce) = expand_s::expand_s::<V, V::K>(&mut rhoprime, nonce);
     assert_eq!(nonce, V::L::U16 + V::K::U16);
 
     // Matrix-vector multiplication

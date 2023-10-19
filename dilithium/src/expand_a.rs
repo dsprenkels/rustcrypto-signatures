@@ -1,10 +1,10 @@
 use generic_array::typenum::Unsigned;
 use sha3::digest::{ExtendableOutput, Update, XofReader};
 
-use crate::{poly32, variant, ByteArray};
+use crate::{poly32, types::*, variant};
 
 /// This funcion corresponds to `poly_uniform`.
-pub(crate) fn expand_a_poly(seed: &ByteArray<variant::SEEDBYTES>, nonce: u16) -> poly32::Poly32 {
+pub(crate) fn expand_a_poly(seed: &ByteArray<variant::SeedSize>, nonce: u16) -> poly32::Poly32 {
     let mut xof = sha3::Shake128::default();
     xof.update(seed);
     xof.update(&nonce.to_le_bytes());
@@ -27,10 +27,8 @@ pub(crate) fn expand_a_poly(seed: &ByteArray<variant::SEEDBYTES>, nonce: u16) ->
     poly
 }
 
-pub(crate) fn expand_a<V: variant::Variant>(
-    seed: &ByteArray<variant::SEEDBYTES>,
-) -> crate::Matrix<V> {
-    let mut mat = crate::Matrix::<V>::default();
+pub(crate) fn expand_a<V: variant::Variant>(seed: &ByteArray<variant::SeedSize>) -> Matrix<V> {
+    let mut mat = Matrix::<V>::default();
     for row in 0..V::K::USIZE {
         for col in 0..V::L::USIZE {
             let nonce = ((row as u16) << 8) | col as u16;
