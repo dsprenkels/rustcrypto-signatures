@@ -18,14 +18,19 @@ macro_rules! dilithium_api {
                 }
 
                 #[must_use]
-                pub fn from_seed(seed: ByteArray<variant::SeedSize>) -> Self {
+                pub fn from_seed(seed: &[u8]) -> Self {
+                    let seed = ByteArray::<crate::variant::SeedSize>::from_slice(seed);
                     let inner = keypair::keypair_from_seed::<$variant>(&seed);
                     Self { inner }
                 }
 
                 #[must_use]
                 pub fn to_bytes(&self) -> ByteArray<$sk_size> {
-                    todo!()
+                    let mut buf = ByteArray::default();
+                    (&mut buf[0..32]).copy_from_slice(&self.inner.rho);
+                    (&mut buf[32..64]).copy_from_slice(&self.inner.key);
+                    todo!("implement the rest of the secret key encoding");
+                    buf
                 }
             }
         }

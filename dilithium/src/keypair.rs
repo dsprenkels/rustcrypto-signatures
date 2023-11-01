@@ -10,10 +10,9 @@ pub(crate) fn keypair_random<V: variant::Variant>(rng: &mut impl CryptoRngCore) 
     keypair_from_seed(&seed)
 }
 
-pub(crate) fn keypair_from_seed<V: variant::Variant>(seed: &[u8]) -> SigningKey<V> {
-    let expected_seed_len = V::SeedSize::USIZE;
-    assert_eq!(seed.len(), expected_seed_len);
-
+pub(crate) fn keypair_from_seed<V: variant::Variant>(
+    seed: &ByteArray<variant::SeedSize>,
+) -> SigningKey<V> {
     // Generate seed buffers
     let mut xof = sha3::Shake256::default();
     xof.update(seed);

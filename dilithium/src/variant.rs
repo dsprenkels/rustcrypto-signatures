@@ -18,6 +18,7 @@ pub(crate) trait Variant {
     type K: ArrayLength;
 
     type SeedSize: ArrayLength;
+    type CRHSize: ArrayLength;
     type SigningKeySize: ArrayLength;
 
     fn poly_sample_eta(seed: &ByteArray<CRHSize>, nonce: u16) -> poly32::Poly32;
@@ -32,6 +33,7 @@ impl Variant for Dilithium2 {
     type K = typenum::U3;
 
     type SeedSize = SeedSize;
+    type CRHSize = CRHSize;
     type SigningKeySize = Dilithium2SigningKeySize;
 
     fn poly_sample_eta(seed: &ByteArray<CRHSize>, nonce: u16) -> poly32::Poly32 {
@@ -44,6 +46,7 @@ impl Variant for Dilithium3 {
     type K = typenum::U3;
 
     type SeedSize = SeedSize;
+    type CRHSize = CRHSize;
     type SigningKeySize = Dilithium3SigningKeySize;
 
     fn poly_sample_eta(seed: &ByteArray<CRHSize>, nonce: u16) -> poly32::Poly32 {
@@ -56,6 +59,7 @@ impl Variant for Dilithium5 {
     type K = typenum::U3;
 
     type SeedSize = SeedSize;
+    type CRHSize = CRHSize;
     type SigningKeySize = Dilithium5SigningKeySize;
 
     fn poly_sample_eta(seed: &ByteArray<CRHSize>, nonce: u16) -> poly32::Poly32 {
